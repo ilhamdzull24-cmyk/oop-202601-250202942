@@ -28,3 +28,10 @@ Salin setiap pertanyaan ambigu (nomor 1 sampai 7) ke sini dan jawab. Contoh:
 ## Asumsi lain
 
 Tambahkan di sini keputusan lain yang Anda ambil: rumus denda progresif, perubahan skema database, format error API, dan seterusnya.
+
+## A-02: normalisasi kode aset
+- Pertanyaan: apakah kode aset di-trim dan diubah ke huruf besar?
+- Keputusan: ya, kode di-trim dan diubah ke huruf besar saat konstruktor dipanggil. Nama tidak dinormalisasi.
+- Alasan: kode berfungsi sebagai identitas aset, jadi " a-01 " dan "A-01" harus dianggap aset yang sama agar pencarian dan perbandingan konsisten.
+- Dampak ke kode: konstruktor Aset (trim dan toUpperCase pada kode).
+- Tes yang membuktikan: Minggu02AsetTest.menyimpanKodeDanNamaDenganNilaiAwal (kode "A-01" tetap "A-01").
