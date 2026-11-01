@@ -22,5 +22,9 @@ public class Ruang extends Aset {
         return JenisAset.RUANG;
     }
 
-    // TODO minggu 4: override hitungDenda(int).
+    /** Minggu 4: multiplier ruang 1x. */
+    @Override
+    public long hitungDenda(int hariTerlambat) {
+        return hitungDendaDasar(hariTerlambat, 1);
+    }
 }
