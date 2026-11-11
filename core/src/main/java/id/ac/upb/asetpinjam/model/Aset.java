@@ -4,15 +4,14 @@ import id.ac.upb.asetpinjam.config.Varian;
 import id.ac.upb.asetpinjam.kontrak.DapatDipinjam;
 
 /**
- * Aset yang dapat dipinjam.
+ * Aset yang dapat dipinjam. Class abstrak: tidak ada aset "umum", yang ada Ruang, Laptop, dan AlatLab.
  *
- * <p>Minggu 2: lengkapi field, konstruktor, getter/setter, dan validasi (encapsulation).
- * Minggu 3: tambahkan getJenis() di tiap subclass.
+ * <p>Minggu 2: field, konstruktor, getter/setter, dan validasi (encapsulation).
+ * Minggu 3: getJenis() di tiap subclass.
  * Minggu 4: hitungDenda() dioverride di tiap subclass.
- * Minggu 5: isi bisaDipinjam() dan ubah menjadi class abstrak
- * (TestSupport.aset(...) di folder test menyesuaikan sendiri, lihat docs/minggu-05.md).
+ * Minggu 5: bisaDipinjam() diisi dan class dijadikan abstrak.
  */
-public class Aset implements DapatDipinjam {
+public abstract class Aset implements DapatDipinjam {
 
     private final String kode;
     private String nama;
@@ -20,7 +19,7 @@ public class Aset implements DapatDipinjam {
     private Kondisi kondisi;
 
     /** Kode dan nama tidak boleh null atau kosong (IllegalArgumentException). */
-    public Aset(String kode, String nama) {
+    protected Aset(String kode, String nama) {
         this.kode = wajibIsi(kode, "kode").trim().toUpperCase();
         this.nama = wajibIsi(nama, "nama");
         this.status = StatusAset.TERSEDIA;
@@ -71,27 +70,20 @@ public class Aset implements DapatDipinjam {
         this.kondisi = kondisi;
     }
 
-    /** TODO minggu 5: true hanya jika status TERSEDIA dan kondisi bukan RUSAK_BERAT. */
+    /** True hanya jika status TERSEDIA dan kondisi bukan RUSAK_BERAT. */
     @Override
     public boolean bisaDipinjam() {
-        throw new UnsupportedOperationException("TODO minggu 5");
+        return status == StatusAset.TERSEDIA && kondisi != Kondisi.RUSAK_BERAT;
     }
 
-    /**
-     * Jenis aset. Dioverride di Ruang, Laptop, dan AlatLab (minggu 3);
-     * Aset sendiri tidak punya jenis, jadi di sini belum diimplementasikan.
-     */
-    public JenisAset getJenis() {
-        throw new UnsupportedOperationException("getJenis() dioverride oleh subclass");
-    }
+    /** Jenis aset, ditentukan oleh tiap subclass. */
+    public abstract JenisAset getJenis();
 
     /**
      * Denda keterlambatan = hari x multiplier jenis x tarif varian.
-     * Dioverride di Ruang (1x), Laptop (2x), dan AlatLab (4x).
+     * Ruang 1x, Laptop 2x, AlatLab 4x. Hari negatif ditolak.
      */
-    public long hitungDenda(int hariTerlambat) {
-        throw new UnsupportedOperationException("hitungDenda() dioverride oleh subclass");
-    }
+    public abstract long hitungDenda(int hariTerlambat);
 
     /** Pembantu untuk subclass: tolak hari negatif lalu hitung hari x multiplier x tarif varian. */
     protected long hitungDendaDasar(int hariTerlambat, int multiplier) {
