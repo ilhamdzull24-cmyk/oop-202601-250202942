@@ -1,8 +1,3 @@
-# Class Diagram Aset-Pinjam
-
-Diagram dibuat dari kode di `core/src/main/java/id/ac/upb/asetpinjam/` (tanda `*` = abstrak, `+` public, `-` private, `#` protected).
-
-```mermaid
 classDiagram
 direction TB
 
@@ -216,11 +211,3 @@ AturanDenda ..> Aset
 KatalogAset ..> JenisAset
 PeminjamanDAO ..> Peminjaman
 AsetDAO ..> Aset
-```
-
-## Catatan pembacaan
-
-- `Aset` abstrak: `getJenis()` dan `hitungDenda()` abstrak, `bisaDipinjam()` sudah diisi (realization `DapatDipinjam`).
-- Satu `Peminjam` dapat punya banyak `Peminjaman` (0..*), tiap `Peminjaman` tepat satu `Peminjam` (1). Satu `Aset` dapat tercatat di banyak `Peminjaman` (0..*), tiap `Peminjaman` mencatat tepat satu `Aset` (1).
-- `KatalogAset` dan `JadwalPeminjaman` memakai aggregation: objek `Aset` dan `Peminjaman` dibuat di luar lalu dimasukkan lewat `tambah(...)`, jadi tidak ikut hilang saat wadahnya hilang. Kalau komposisi, bagian akan ikut hilang bersama keseluruhan.
-- `LayananDenda` menerima `AturanDenda` lewat konstruktor (minggu 10), sehingga bergantung pada interface, bukan pada `DendaFlat` atau `DendaProgresif`.

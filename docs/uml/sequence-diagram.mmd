@@ -1,8 +1,3 @@
-# Sequence Diagram: Pengajuan Peminjaman
-
-Skenario: peminjam mengajukan peminjaman lewat `JadwalPeminjaman.ajukan(...)`. Aturan pemeriksaannya mengikuti `docs/aturan-bisnis.md` (bentrok jadwal, lalu kuota laptop).
-
-```mermaid
 sequenceDiagram
     actor U as Peminjam
     participant P as Peminjaman
@@ -27,10 +22,3 @@ sequenceDiagram
             J-->>U: selesai (peminjaman tercatat)
         end
     end
-```
-
-## Penjelasan singkat
-
-- **Skenario sukses:** tidak bentrok dan kuota masih ada, sehingga `tambah(baru)` dipanggil dan peminjaman masuk jadwal.
-- **Skenario bentrok:** `bentrok(baru)` bernilai true, sehingga `ajukan` melempar `PeminjamanBentrokException` dan jadwal tidak berubah.
-- Kuota hanya berlaku untuk laptop (status aktif DISETUJUI atau DIPINJAM), seperti di `docs/aturan-bisnis.md`.
