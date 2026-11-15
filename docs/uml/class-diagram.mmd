@@ -1,0 +1,226 @@
+# Class Diagram Aset-Pinjam
+
+Diagram dibuat dari kode di `core/src/main/java/id/ac/upb/asetpinjam/` (tanda `*` = abstrak, `+` public, `-` private, `#` protected).
+
+```mermaid
+classDiagram
+direction TB
+
+namespace kontrak {
+    class DapatDipinjam {
+        <<interface>>
+        +bisaDipinjam() boolean
+    }
+    class AturanDenda {
+        <<interface>>
+        +hitung(Aset aset, int hariTerlambat) long
+    }
+}
+
+namespace model {
+    class Aset {
+        <<abstract>>
+        -String kode
+        -String nama
+        -StatusAset status
+        -Kondisi kondisi
+        #Aset(String kode, String nama)
+        +getKode() String
+        +getNama() String
+        +getStatus() StatusAset
+        +getKondisi() Kondisi
+        +setNama(String nama) void
+        +setStatus(StatusAset status) void
+        +setKondisi(Kondisi kondisi) void
+        +bisaDipinjam() boolean
+        +getJenis() JenisAset*
+        +hitungDenda(int hariTerlambat) long*
+        #hitungDendaDasar(int hariTerlambat, int multiplier) long
+    }
+    class Ruang {
+        -int kapasitas
+        +Ruang(String kode, String nama, int kapasitas)
+        +getKapasitas() int
+        +getJenis() JenisAset
+        +hitungDenda(int hariTerlambat) long
+    }
+    class Laptop {
+        -String spesifikasi
+        -String nomorInventaris
+        +Laptop(String kode, String nama, String spesifikasi, String nomorInventaris)
+        +getSpesifikasi() String
+        +getNomorInventaris() String
+        +getJenis() JenisAset
+        +hitungDenda(int hariTerlambat) long
+    }
+    class AlatLab {
+        -String laboratorium
+        -TingkatRisiko tingkatRisiko
+        +AlatLab(String kode, String nama, String laboratorium, TingkatRisiko tingkatRisiko)
+        +getLaboratorium() String
+        +getTingkatRisiko() TingkatRisiko
+        +getJenis() JenisAset
+        +hitungDenda(int hariTerlambat) long
+    }
+    class Peminjam {
+        <<record>>
+        -String id
+        -String nama
+    }
+    class Peminjaman {
+        -String id
+        -Peminjam peminjam
+        -Aset aset
+        -LocalDateTime mulai
+        -LocalDateTime selesai
+        -StatusPeminjaman status
+        +getId() String
+        +getPeminjam() Peminjam
+        +getAset() Aset
+        +getMulai() LocalDateTime
+        +getSelesai() LocalDateTime
+        +getStatus() StatusPeminjaman
+        +ubahStatus(StatusPeminjaman baru) void
+    }
+    class StatusAset {
+        <<enumeration>>
+        TERSEDIA
+        DIPINJAM
+        RUSAK
+    }
+    class Kondisi {
+        <<enumeration>>
+        BAIK
+        RUSAK_RINGAN
+        RUSAK_BERAT
+    }
+    class JenisAset {
+        <<enumeration>>
+        RUANG
+        LAPTOP
+        ALAT_LAB
+    }
+    class TingkatRisiko {
+        <<enumeration>>
+        RENDAH
+        SEDANG
+        TINGGI
+    }
+    class StatusPeminjaman {
+        <<enumeration>>
+        DIAJUKAN
+        DISETUJUI
+        DITOLAK
+        DIBATALKAN
+        DIPINJAM
+        TERLAMBAT
+        DIKEMBALIKAN
+    }
+}
+
+namespace denda {
+    class DendaFlat {
+        +hitung(Aset aset, int hariTerlambat) long
+    }
+    class DendaProgresif {
+        +hitung(Aset aset, int hariTerlambat) long
+    }
+    class LayananDenda {
+        -AturanDenda aturan
+        +LayananDenda(AturanDenda aturan)
+        +hitung(Aset aset, int hariTerlambat) long
+    }
+}
+
+namespace katalog {
+    class KatalogAset {
+        -List~Aset~ daftar
+        +tambah(Aset aset) void
+        +semua() List~Aset~
+        +cari(String kata) List~Aset~
+        +cari(String kata, JenisAset jenis) List~Aset~
+    }
+}
+
+namespace jadwal {
+    class JadwalPeminjaman {
+        -List~Peminjaman~ daftar
+        -int kuotaLaptop
+        +JadwalPeminjaman(int kuotaLaptop)
+        +tambah(Peminjaman p) void
+        +bentrok(Peminjaman baru) boolean
+        +semuaUrutMulai() List~Peminjaman~
+        +perAset() Map~String, List~Peminjaman~~
+        +hapus(String id) boolean
+        +ajukan(Peminjaman baru) void
+    }
+}
+
+namespace dao {
+    class AsetDAO {
+        <<interface>>
+        +simpan(Aset aset) void
+        +cariByKode(String kode) Optional~Aset~
+        +semua() List~Aset~
+        +perbarui(Aset aset) void
+        +hapus(String kode) boolean
+    }
+    class PeminjamanDAO {
+        <<interface>>
+        +simpan(Peminjaman peminjaman) void
+        +cariById(String id) Optional~Peminjaman~
+        +perbaruiStatus(String id, StatusPeminjaman status) boolean
+    }
+    class JdbcAsetDAO
+    class JdbcPeminjamanDAO
+}
+
+namespace config {
+    class Varian {
+        +String nim
+        +String nama
+        +int dendaPerHari
+        +int batasDurasiJam
+        +int kuotaLaptop
+        +aktif() Varian$
+    }
+}
+
+%% Generalization dan realization
+Ruang --|> Aset
+Laptop --|> Aset
+AlatLab --|> Aset
+Aset ..|> DapatDipinjam
+DendaFlat ..|> AturanDenda
+DendaProgresif ..|> AturanDenda
+JdbcAsetDAO ..|> AsetDAO
+JdbcPeminjamanDAO ..|> PeminjamanDAO
+
+%% Association dengan multiplicity
+Peminjam "1" --> "0..*" Peminjaman : mengajukan
+Peminjaman "0..*" --> "1" Aset : mencatat
+Peminjaman "1" --> "1" StatusPeminjaman : status
+Aset "1" --> "1" StatusAset : status
+Aset "1" --> "1" Kondisi : kondisi
+AlatLab "1" --> "1" TingkatRisiko : tingkatRisiko
+
+%% Aggregation (daftar menampung objek yang dibuat di luar)
+KatalogAset o-- "0..*" Aset
+JadwalPeminjaman o-- "0..*" Peminjaman
+LayananDenda o-- "1" AturanDenda
+
+%% Dependency
+Aset ..> Varian : tarif denda
+Aset ..> JenisAset
+AturanDenda ..> Aset
+KatalogAset ..> JenisAset
+PeminjamanDAO ..> Peminjaman
+AsetDAO ..> Aset
+```
+
+## Catatan pembacaan
+
+- `Aset` abstrak: `getJenis()` dan `hitungDenda()` abstrak, `bisaDipinjam()` sudah diisi (realization `DapatDipinjam`).
+- Satu `Peminjam` dapat punya banyak `Peminjaman` (0..*), tiap `Peminjaman` tepat satu `Peminjam` (1). Satu `Aset` dapat tercatat di banyak `Peminjaman` (0..*), tiap `Peminjaman` mencatat tepat satu `Aset` (1).
+- `KatalogAset` dan `JadwalPeminjaman` memakai aggregation: objek `Aset` dan `Peminjaman` dibuat di luar lalu dimasukkan lewat `tambah(...)`, jadi tidak ikut hilang saat wadahnya hilang. Kalau komposisi, bagian akan ikut hilang bersama keseluruhan.
+- `LayananDenda` menerima `AturanDenda` lewat konstruktor (minggu 10), sehingga bergantung pada interface, bukan pada `DendaFlat` atau `DendaProgresif`.
