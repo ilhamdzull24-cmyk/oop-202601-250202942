@@ -22,8 +22,8 @@ Salin setiap pertanyaan ambigu (nomor 1 sampai 7) ke sini dan jawab. Contoh:
 - Pertanyaan: 09:00-11:00 dan 11:00-13:00 pada aset yang sama bentrok atau tidak?
 - Keputusan: tidak bentrok
 - Alasan: waktu selesai peminjaman pertama sama dengan waktu mulai peminjaman kedua, tidak tumpang tindih
-- Dampak ke kode: (belum diimplementasi)
-- Tes yang membuktikan: (belum implementasi)
+- Dampak ke kode: `JadwalPeminjaman.bentrok` pakai rentang setengah terbuka [mulai, selesai), yaitu bentrok kalau `a.mulai < b.selesai` dan `b.mulai < a.selesai`.
+- Tes yang membuktikan: `BatasBentrokTest.selesaiSamaDenganMulaiTidakBentrok`, `BatasBentrokTest.mulaiSamaDenganSelesaiYangLainTidakBentrok`
 
 
 ## A-02: normalisasi kode aset
@@ -40,7 +40,14 @@ Salin setiap pertanyaan ambigu (nomor 1 sampai 7) ke sini dan jawab. Contoh:
 - Alasan: tiap tingkat hanya mengenai hari yang masuk tingkat itu, sehingga denda tidak pernah lebih murah dari flat, tidak pernah turun, dan tidak melonjak tiba-tiba di batas hari. Pada hari ke-30 hasilnya lebih mahal dari flat.
 - Dampak ke kode: DendaProgresif.java
 - Tes yang membuktikan: Minggu05AbstraksiTest.dendaProgresifMemenuhiSyaratMinimal
-  
+
+ ## A-04: status yang menempati jadwal
+- Pertanyaan: apakah peminjaman berstatus DITOLAK atau DIBATALKAN masih menempati jadwal?
+- Keputusan: tidak. Hanya peminjaman selain DITOLAK dan DIBATALKAN yang menempati jadwal. DIAJUKAN tetap menempati jadwal.
+- Alasan: pengajuan yang ditolak atau dibatalkan tidak akan terjadi, jadi aset itu bebas dipinjam pada waktu yang sama. DIAJUKAN tetap menempati supaya dua pengajuan tidak saling berebut slot yang sama.
+- Dampak ke kode: JadwalPeminjaman.bentrok (method pembantu menempatiJadwal).
+- Tes yang membuktikan: BatasBentrokTest.peminjamanDitolakTidakMenempatiJadwal, BatasBentrokTest.peminjamanDibatalkanTidakMenempatiJadwal, BatasBentrokTest.peminjamanDiajukanMasihMenempatiJadwal 
+
 ## Asumsi lain
 
 Tambahkan di sini keputusan lain yang Anda ambil: rumus denda progresif, perubahan skema database, format error API, dan seterusnya.
